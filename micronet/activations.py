@@ -14,6 +14,13 @@ def sigmoid(x):
         return dx
     return y, backward
 
+def tanh(x):
+    y = np.tanh(x)
+    def backward(dy):
+        dx = dy * (1 - y ** 2)
+        return dx
+    return y, backward
+
 def softmax(x):
     y = np.exp(x) / sum(np.exp(x))
     def backward(dy):
