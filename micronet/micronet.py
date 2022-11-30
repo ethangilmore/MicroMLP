@@ -30,9 +30,8 @@ class Layer:
         return [self.w, self.b]
 
 class MLP:
-    def __init__(self, layers: list, loss):
+    def __init__(self, layers: list):
         self.layers = layers
-        self.loss = loss
 
     def __call__(self, x: np.array) -> np.array:
         for layer in self.layers:
@@ -43,24 +42,24 @@ class MLP:
         for layer in reversed(self.layers):
             dy = layer._backward(dy)
 
-    def calculate_gradients(self, x: np.array, y_true: np.array):
+    def calculate_gradients(self, x: np.array, y_true: np.array, loss):
         y_pred = self(x)
-        loss, dy = self.loss(y_pred, y_true)
+        loss, dy = loss(y_pred, y_true)
         self.backward(dy)
         return loss
 
-    def training_step(self, xs, ys, step_size):
+    def training_step(self, xs, ys, loss, step_size):
         avg_loss = 0
         for x, y in zip(xs, ys):
-            avg_loss += self.calculate_gradients(x, y) / len(xs)
+            avg_loss += self.calculate_gradients(x, y, loss) / len(xs)
         for layer in self.layers:
             for p in layer.parameters():
                 p.apply_gradient(step_size / len(xs))
         return avg_loss
 
-    def train(self, xs, ys, epochs, batch_size, learning_rate):
+    def train(self, xs, ys, loss, epochs, batch_size, learning_rate):
         for epoch in range(epochs):
             avg_loss = 0
             for i in range(0, len(xs), batch_size):
-                avg_loss += self.training_step(xs[i:i+batch_size], ys[i:i+batch_size], learning_rate) / batch_size
+                avg_loss += self.training_step(xs[i:i+batch_size], ys[i:i+batch_size], loss, learning_rate) / batch_size
             print(f"Epoch {epoch}: Avg Loss {avg_loss}")
