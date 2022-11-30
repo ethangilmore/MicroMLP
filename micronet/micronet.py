@@ -17,20 +17,20 @@ class Layer:
         self._backward = lambda: None
 
     def __call__(self, x: np.array) -> np.array:
-        z, dz_da = self._activation_fn(x @ self.w.value + self.b.value)
-        def backward(da: np.array):
-            dz = dz_da(da)
-            self.w.gradient += np.outer(x, dz)
-            self.b.gradient += dz
-            return dz @ self.w.value.T
+        a, da_dz = self._activation_fn(x @ self.w.value + self.b.value)
+        def backward(dL_da: np.array):
+            dL_dz = da_dz(dL_da)
+            self.w.gradient += np.outer(x, dL_dz)
+            self.b.gradient += dL_dz
+            return dL_dz @ self.w.value.T
         self._backward = backward
-        return z
+        return a
 
     def parameters(self):
         return [self.w, self.b]
 
 class MLP:
-    def __init__(self, layers: list):
+    def __init__(self, layers: list, loss):
         self.layers = layers
 
     def __call__(self, x: np.array) -> np.array:
