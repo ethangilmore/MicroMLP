@@ -30,7 +30,7 @@ class Layer:
         return [self.w, self.b]
 
 class MLP:
-    def __init__(self, layers: list, loss):
+    def __init__(self, layers: list):
         self.layers = layers
 
     def __call__(self, x: np.array) -> np.array:
