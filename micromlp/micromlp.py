@@ -11,18 +11,18 @@ class Parameter:
 
 class Layer:
     def __init__(self, in_size: int, out_size: int, activation):
-        self.w = Parameter(np.random.normal(0, 1, (in_size, out_size)))
+        self.w = Parameter(np.random.normal(0, 1, (out_size, in_size)))
         self.b = Parameter(np.zeros(out_size))
         self._activation_fn = activation
         self._backward = lambda: None
 
     def __call__(self, x: np.array) -> np.array:
-        a, da_dz = self._activation_fn(x @ self.w.value + self.b.value)
+        a, da_dz = self._activation_fn(self.w.value @ x + self.b.value)
         def backward(dL_da: np.array):
             dL_dz = da_dz(dL_da)
-            self.w.gradient += np.outer(x, dL_dz)
+            self.w.gradient += np.outer(dL_dz, x)
             self.b.gradient += dL_dz
-            return dL_dz @ self.w.value.T
+            return dL_dz @ self.w.value
         self._backward = backward
         return a
 
